@@ -1,5 +1,9 @@
-/test/*
-/innovators/
-/trns/*.pyc
+test/*
+innovators/
+trns/nmt_model*
+
+trns/__pycache__/
+trns/.ipynb_checkpoints/
+trns/.DS_Store
 
 *.ipynb
