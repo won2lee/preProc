@@ -1,5 +1,6 @@
 test/*
 innovators/
+__pycache__/
 trns/nmt_model*
 
 trns/__pycache__/
