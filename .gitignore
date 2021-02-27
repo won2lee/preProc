@@ -1,4 +1,5 @@
 /test/*
 /innovators/
+/trns/*.pyc
 
 *.ipynb
