@@ -1,6 +1,7 @@
 test/*
 innovators/
 depricated/
+trns/depricated/
 __pycache__/
 trns/nmt_model*
 
