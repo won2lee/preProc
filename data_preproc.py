@@ -2,7 +2,7 @@ from tqdm.notebook import tqdm
 from itertools import chain
 import json
 import re
-from app_utils import to_start, rid_blank, preproc_num, to_normal
+from utils import to_start, rid_blank, preproc_num, to_normal
 from trns.preproc_En import pre_en, preproc_en
 from trns.preproc_kor import preproc_ko2en
 
@@ -62,14 +62,14 @@ def main_proc():
     pre_ko = preproc_ko2en()
     en_vocs = pre_en()
 
-    path0 = 'innovators/'
-    f_toSave = path0+'new_output/dev8.'
+    path0 = 'sample_data/'
+    f_toSave = path0+'outputs/outX.'
     step_num = 10000
 
-    X = sanitize_input(path0+'Xen')
+    X = sanitize_input(path0+'inputs/inX.en')
     Y = preProc_save(X, step_num, 'en', to_start, pre_ko, preproc_en, en_vocs,f_toSave+'en')
 
-    X = sanitize_input(path0+'Xko')
+    X = sanitize_input(path0+'inputs/inX.ko')
     Y = preProc_save(X, step_num, 'ko', to_start, pre_ko, preproc_en, en_vocs,f_toSave+'ko')
 
 if __name__ == '__main__':
