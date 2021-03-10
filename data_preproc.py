@@ -1,7 +1,10 @@
-from tqdm.notebook import tqdm
-from itertools import chain
+import argparse
 import json
 import re
+import os
+from os.path import join, exists
+from tqdm.notebook import tqdm
+from itertools import chain
 from utils import to_start, rid_blank, preproc_num, to_normal
 from trns.preproc_En import pre_en, preproc_en
 from trns.preproc_kor import preproc_ko2en
@@ -58,19 +61,38 @@ def sanitize_input(in_file):
     
     return X
 
-def main_proc():
+def main_proc(args):
+    
+    if not exists(args.path):
+        os.makedirs(args.path)
+        
     pre_ko = preproc_ko2en()
     en_vocs = pre_en()
 
-    path0 = 'sample_data/'
-    f_toSave = path0+'outputs/outX.'
+    path0 = args.path #'sample_data/'
+    f_toSave = path0+args.output+'.'
     step_num = 10000
+    
+    lang = args.lang
+    X = sanitize_input(path0+args.input)
+    Y = preProc_save(X, step_num, lang, to_start, pre_ko, preproc_en, en_vocs,f_toSave+lang)
 
-    X = sanitize_input(path0+'inputs/inX.en')
-    Y = preProc_save(X, step_num, 'en', to_start, pre_ko, preproc_en, en_vocs,f_toSave+'en')
-
-    X = sanitize_input(path0+'inputs/inX.ko')
-    Y = preProc_save(X, step_num, 'ko', to_start, pre_ko, preproc_en, en_vocs,f_toSave+'ko')
+    #X = sanitize_input(path0+'inputs/inX.ko')
+    #Y = preProc_save(X, step_num, lang, to_start, pre_ko, preproc_en, en_vocs,f_toSave+'ko')
 
 if __name__ == '__main__':
-    main_proc()
+    
+    parser = argparse.ArgumentParser(description='program to preproceed')
+    parser.add_argument('--path', default='sample_data/', help='root of the data')
+
+    # model options
+    parser.add_argument('--lang', action='store', default='ko',
+                        help='language of input data: en or ko')
+    parser.add_argument('--input', action='store', default='inputs/inX.ko',
+                        help='input data for preprocess')
+    parser.add_argument('--output', action='store', default='outputs/outX',
+                        help='out data after proprocess')
+
+    args = parser.parse_args()
+    
+    main_proc(args)
