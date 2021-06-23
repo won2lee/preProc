@@ -5,12 +5,13 @@ import os
 from os.path import join, exists
 from tqdm.notebook import tqdm
 from itertools import chain
+from cytoolz import curry
 from utils import to_start, rid_blank, preproc_num, to_normal
 from trns.preproc_En import pre_en, preproc_en
 from trns.preproc_kor import preproc_ko2en
 
-
-def preProc(X, lang, to_start, pre_ko, preproc_en, en_vocs):
+@curry
+def preProc(lang, to_start, pre_ko, preproc_en, en_vocs, X):
     
     #X = to_start(X)
     
@@ -43,15 +44,18 @@ def preProc_save(X, step_num, lang,to_start, pre_ko, preproc_en, en_vocs,f_toSav
 #    X = f.read().split('\n')[:100]
 
 
-def sanitize_input(in_file):
+def sanitize_input(in_file, dataList = None):
     
     p = re.compile('[\`\^]')
     p1 = re.compile('\`')
     p2 = re.compile('\^')
     
-    with open(in_file, 'r') as f:
-        X = f.read().split('\n')
-        X = [s+'.' for s in X]
+    if in_file:
+        with open(in_file, 'r') as f:
+            X = f.read().split('\n')
+            X = [s+'.' for s in X]
+    elif dataList:
+        X = dataList
 
     if len([s for s in X if p.search(s) is not None])>0:
         print("`^ id detected !!!!")
@@ -60,6 +64,25 @@ def sanitize_input(in_file):
     X = [p2.sub('ˆ',p1.sub("'",s)) for s in X] #if p.search(s) is None]
     
     return X
+
+def fast_preproc(in_path,out_path, lang):
+    from glob import glob
+    f_list = glob(in_path+"*")
+    
+    if not exists(out_path):
+        os.makedirs(out_path)
+     
+    pre_ko = preproc_ko2en()
+    en_vocs = pre_en()
+    preproc = preProc(lang, to_start, pre_ko, preproc_en, en_vocs)
+    
+    for fi in f_list:
+        with open(fi) as f:
+            js = json.loads(f.read())
+        for k in ["article", "abstract"]:
+            js[k] = preproc(sanitize_input(None, js[k]))
+        with open(join(out_path, fi.split('/')[1]),"w") as f:
+            json.dump(js,f,indent=4)   
 
 def main_proc(args):
     
@@ -75,7 +98,7 @@ def main_proc(args):
     
     lang = args.lang
     X = sanitize_input(path0+args.input)
-    Y = preProc_save(X, step_num, lang, to_start, pre_ko, preproc_en, en_vocs,f_toSave+lang)
+    Y = preProc_save(step_num, lang, to_start, pre_ko, preproc_en, en_vocs,f_toSave+lang,X)
 
     #X = sanitize_input(path0+'inputs/inX.ko')
     #Y = preProc_save(X, step_num, lang, to_start, pre_ko, preproc_en, en_vocs,f_toSave+'ko')

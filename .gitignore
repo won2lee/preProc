@@ -1,5 +1,7 @@
 test/*
 innovators/
+in_path/
+out_path/
 depricated/
 trns/depricated/
 __pycache__/
